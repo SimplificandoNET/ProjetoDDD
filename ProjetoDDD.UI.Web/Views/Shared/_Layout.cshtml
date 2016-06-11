@@ -1,0 +1,110 @@
+﻿@using ProjetoDDD.UI.Web.Util
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Projeto DDD</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Projeto DDD", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <div class="nav navbar-nav" style="margin-top:8px;">
+                    <div class="dropdown">
+                        @if (SessionManager.IsAuthenticated)
+                        {
+                            foreach (var modulo in SessionManager.UsuarioLogado.PerfilUsuario.ModulosAcesso.Where(x => x.IdModuloPai == null))
+                            {
+                                var temFilhos = SessionManager.UsuarioLogado.PerfilUsuario.ModulosAcesso.Where(x => x.IdModuloPai == modulo.IdModulo).Count() > 0;
+                                <a id="dLabel" role="button" data-toggle="@(temFilhos ? "dropdown":"")" class="btn btn-primary" data-target="#" href="#">
+                                    @modulo.NomeMenuAcesso
+                                    @if (temFilhos)
+                                    {
+                                        <span class="caret"></span>
+                                    }
+                                </a>
+                                if (temFilhos)
+                                {
+                                    <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
+                                        @foreach (var moduloFilho in SessionManager.UsuarioLogado.PerfilUsuario.ModulosAcesso.Where(x => x.IdModuloPai == modulo.IdModulo))
+                                        {
+                                            var temNetos = SessionManager.UsuarioLogado.PerfilUsuario.ModulosAcesso.Where(x => x.IdModuloPai == moduloFilho.IdModulo).Count() > 0;
+                                            if (!temNetos)
+                                            {
+                                                <li><a href="@Url.Content(moduloFilho.UrlMenu)">@moduloFilho.NomeMenuAcesso</a></li>
+                                            }
+                                            else
+                                            {
+                                                <li class="dropdown-submenu">
+                                                    <a tabindex="-1" href="#">@moduloFilho.NomeMenuAcesso</a>
+                                                    <ul class="dropdown-menu">
+                                                        @foreach (var moduloNeto in SessionManager.UsuarioLogado.PerfilUsuario.ModulosAcesso.Where(x => x.IdModuloPai == moduloFilho.IdModulo))
+                                                        {
+                                                            <li><a tabindex="-1" href="@Url.Content(moduloNeto.UrlMenu)">@moduloNeto.NomeMenuAcesso</a></li>
+                                                        }
+
+                                                    </ul>
+                                                </li>
+                                            }
+
+                                        }
+                                    </ul>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    @if (SessionManager.IsAuthenticated)
+                    {
+                        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Olá @SessionManager.UsuarioLogado.Nome</a></li>
+                        <li><a href="@Url.Action("Logoff","Account")"><span class="glyphicon glyphicon-log-in"></span> Sair</a></li>
+                    }
+                    else {
+                        <li>@Html.ActionLink("Login", "Login", "Account")</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Eduardo Gavioli - Simplificando .NET</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+@*<li><a href="#">Some other action</a></li>
+    <li class="divider"></li>
+    <li class="dropdown-submenu">
+        <a tabindex="-1" href="#">Hover me for more options</a>
+        <ul class="dropdown-menu">
+            <li><a tabindex="-1" href="#">Second level</a></li>
+            <li class="dropdown-submenu">
+                <a href="#">Even More..</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">3rd level</a></li>
+                    <li><a href="#">3rd level</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Second level</a></li>
+            <li><a href="#">Second level</a></li>
+        </ul>
+    </li>*@
